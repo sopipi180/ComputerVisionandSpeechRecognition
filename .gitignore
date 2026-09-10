@@ -1,3 +1,6 @@
-/figures
-/milk10k
-/milk10k.zip
+**/milk10k/
+**/milk10k.zip
+venv/
+__pycache__/
+*.pyc
+.DS_Store
