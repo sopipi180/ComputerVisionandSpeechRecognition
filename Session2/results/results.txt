@@ -1,0 +1,70 @@
+10,480 images in metadata, 10,480 found on disk
+
+===== PART 1: METADATA =====
+                column        type  unique  missing_%                                                 risk
+           attribution categorical       1        0.0       bias: proxy for the clinic that took the photo
+     copyright_license categorical       1        0.0                           bias: proxy for the clinic
+            age_approx     numeric      17        0.4                                                     
+   anatom_site_general categorical       4       37.3                                                     
+   anatom_site_special categorical       2       98.0                                                     
+    concomitant_biopsy     boolean       2        0.0    leakage: biopsies are taken on suspicious lesions
+           diagnosis_2   free text      19        0.0                leakage: part of the diagnosis itself
+           diagnosis_3 categorical      27        1.5                leakage: part of the diagnosis itself
+           diagnosis_4 categorical      15       85.5                leakage: part of the diagnosis itself
+diagnosis_confirm_type categorical       2        0.0             leakage: reflects the doctor's suspicion
+    image_manipulation categorical       2        0.0                  bias: proxy for device / processing
+            image_type categorical       2        0.0 confounder: changes image colours, not the diagnosis
+           melanocytic     boolean       1       77.2                  leakage: derived from the diagnosis
+                   sex categorical       2        0.0                                                     
+                  dx11 categorical      11        0.0                          leakage: the 11-class label
+
+Association with diagnosis_1 (strongest first):
+                column           test  effect  p_value                                                 risk
+           diagnosis_4     chi-square   1.000      0.0                leakage: part of the diagnosis itself
+           diagnosis_3     chi-square   0.997      0.0                leakage: part of the diagnosis itself
+                  dx11     chi-square   0.832      0.0                          leakage: the 11-class label
+   anatom_site_special     chi-square   0.573      0.0                                                     
+    concomitant_biopsy     chi-square   0.311      0.0    leakage: biopsies are taken on suspicious lesions
+diagnosis_confirm_type     chi-square   0.311      0.0             leakage: reflects the doctor's suspicion
+            age_approx Kruskal-Wallis   0.152      0.0                                                     
+    image_manipulation     chi-square   0.139      0.0                  bias: proxy for device / processing
+   anatom_site_general     chi-square   0.138      0.0                                                     
+                   sex     chi-square   0.093      0.0                                                     
+            image_type     chi-square   0.000      1.0 confounder: changes image colours, not the diagnosis
+
+===== PART 2: COLOUR =====
+images analysed: 72
+image_type     clinical: close-up  dermoscopic
+diagnosis_1                                   
+Benign                         12           12
+Indeterminate                  12           12
+Malignant                      12           12
+
+Mean colour per class:
+               mean_R  mean_G  mean_B  std_R  std_G  std_B  mean_gray
+diagnosis_1                                                          
+Benign          165.9   135.9   126.1   21.7   24.9   27.9      143.3
+Indeterminate   155.8   116.6   108.8   26.7   27.2   28.3      126.9
+Malignant       175.0   132.6   119.1   23.0   29.1   30.9      143.2
+
+Mean colour per image type and class (is the image-type gap bigger than the class gap?):
+                                  mean_R  mean_G  mean_B  mean_gray
+image_type         diagnosis_1                                     
+clinical: close-up Benign          170.0   133.4   113.9      141.6
+                   Indeterminate   149.7   109.0    91.1      118.6
+                   Malignant       180.0   131.3   105.2      142.4
+dermoscopic        Benign          161.7   138.4   138.2      144.9
+                   Indeterminate   161.9   124.1   126.5      135.2
+                   Malignant       170.0   133.9   133.1      144.1
+
+===== PART 3: PROCESSING =====
+one processed image: {'original_size': (450, 600), 'shape': (224, 224, 3), 'color': 'rgb', 'norm': 'minmax', 'min': 0.004, 'max': 0.827}
+batch with a missing file -> kept: ['ISIC_0051817'] skipped: [('missing', 'FileNotFoundError')]
+
+===== PART 4: LOADER =====
+10,480 images, 874 batches, classes: ['Benign', 'Indeterminate', 'Malignant']
+first batch: (12, 224, 224, 3) labels: [2, 0, 0, 2, 0, 2, 2, 2, 2, 0, 2, 2]
+
+===== PART 5: VISUALISER =====
+3 classes: {'Malignant': 7268, 'Benign': 2966, 'Indeterminate': 246}
+11 classes: {'BCC': 5044, 'NV': 1492, 'BKL': 1088, 'SCCKA': 946, 'MEL': 900, 'AKIEC': 606, 'DF': 104, 'INF': 100, 'VASC': 94, 'BEN_OTH': 88, 'MAL_OTH': 18}
