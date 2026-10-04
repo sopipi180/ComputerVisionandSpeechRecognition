@@ -1,0 +1,7 @@
+augmentation,parameters,why it keeps the label
+RandomHorizontalFlip,p=0.5,a mirrored lesion is the same lesion
+RandomVerticalFlip,p=0.5,skin images have no up/down convention
+RandomRotation,degrees=15,the camera angle is arbitrary
+RandomResizedCrop,"size=224, scale=(0.85, 1.0)",scale varies; 0.85 keeps the lesion in frame
+ColorJitter,"brightness=0.2, contrast=0.2, saturation=0.1, hue=0",lighting differs between clinics; hue is left untouched because colour is diagnostic
+Normalize,ImageNet mean/std,matches the statistics pretrained backbones expect

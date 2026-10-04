@@ -1,5 +1,22 @@
-numpy
-pandas
-pillow
-matplotlib
-gradio
+ipykernel
+tabulate                 # pandas .to_markdown() in the data-quality report
+
+# ---- macOS Intel: pinned, NumPy 1.x generation (use Python 3.12) ------------
+numpy==1.26.4;        sys_platform == "darwin" and platform_machine == "x86_64"
+pandas==2.2.3;        sys_platform == "darwin" and platform_machine == "x86_64"
+scipy==1.13.1;        sys_platform == "darwin" and platform_machine == "x86_64"
+scikit-learn==1.5.2;  sys_platform == "darwin" and platform_machine == "x86_64"
+matplotlib==3.9.2;    sys_platform == "darwin" and platform_machine == "x86_64"
+pillow==10.4.0;       sys_platform == "darwin" and platform_machine == "x86_64"
+torch==2.2.2;         sys_platform == "darwin" and platform_machine == "x86_64"
+torchvision==0.17.2;  sys_platform == "darwin" and platform_machine == "x86_64"
+
+# ---- everywhere else: current versions -------------------------------------
+numpy;        sys_platform != "darwin" or platform_machine != "x86_64"
+pandas;       sys_platform != "darwin" or platform_machine != "x86_64"
+scipy;        sys_platform != "darwin" or platform_machine != "x86_64"
+scikit-learn; sys_platform != "darwin" or platform_machine != "x86_64"
+matplotlib;   sys_platform != "darwin" or platform_machine != "x86_64"
+pillow;       sys_platform != "darwin" or platform_machine != "x86_64"
+torch;        sys_platform != "darwin" or platform_machine != "x86_64"
+torchvision;  sys_platform != "darwin" or platform_machine != "x86_64"

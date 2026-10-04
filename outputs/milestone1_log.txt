@@ -1,0 +1,74 @@
+metadata: (10480, 18)   gt: (5240, 12)   data dir: /Users/mac/Desktop/ComputerVisionandSpeechRecognition/Session1/milk10k
+
+===== B1  integrity =====
+{
+  "rows_checked": 10480,
+  "missing_files": 0,
+  "unreadable_files": 0,
+  "width_min": 600,
+  "width_median": 600.0,
+  "width_max": 600,
+  "height_min": 450,
+  "height_median": 450.0,
+  "height_max": 450,
+  "share_at_least_224": 1.0
+}
+saved: /Users/mac/Desktop/ComputerVisionandSpeechRecognition/outputs/image_size_summary.csv
+
+===== B2  label-centred EDA =====
+lesion table: 5,240 rows (expected 5,240 on the full dataset)
+saved: /Users/mac/Desktop/ComputerVisionandSpeechRecognition/outputs/lesions.csv
+11-class -> diagnosis_1 mapping saved to outputs/class_mapping.csv
+
+===== B3  label strategy =====
+saved: /Users/mac/Desktop/ComputerVisionandSpeechRecognition/outputs/label_map.json
+diagnosis_1 classes: {'Benign': 0, 'Indeterminate': 1, 'Malignant': 2}
+rare 11-classes kept and handled with weights: ['DF', 'INF', 'VASC', 'BEN_OTH', 'MAL_OTH']
+
+===== B4  data-quality report =====
+saved: /Users/mac/Desktop/ComputerVisionandSpeechRecognition/outputs/data_quality_report.md
+
+===== B5  splits =====
+sizes: {'train': '70.0%', 'val': '15.0%', 'test': '15.0%'}
+
+class mix per split (%):
+           all  train    val   test  max_dev_pp
+dx                                             
+BCC      48.13  47.56  47.96  50.95        2.82
+NV       14.24  14.56  13.99  12.96        1.28
+BKL      10.38  10.50  10.43   9.78        0.60
+SCCKA     9.03   8.86   9.54   9.28        0.51
+MEL       8.59   8.78   8.27   8.01        0.58
+AKIEC     5.78   5.94   5.22   5.59        0.56
+DF        0.99   1.01   1.02   0.89        0.10
+INF       0.95   0.87   1.53   0.76        0.58
+VASC      0.90   0.98   0.38   1.02        0.52
+BEN_OTH   0.84   0.74   1.40   0.76        0.56
+MAL_OTH   0.17   0.19   0.25   0.00        0.17
+largest deviation from the global mix: 2.82 pp
+
+diagnosis_1 mix per split (%):
+                 all  train    val   test  max_dev_pp
+diagnosis_1                                          
+Malignant      69.35  68.94  68.96  71.66        2.31
+Benign         28.30  28.66  28.75  26.18        2.12
+Indeterminate   2.35   2.40   2.29   2.16        0.19
+saved: /Users/mac/Desktop/ComputerVisionandSpeechRecognition/outputs/splits/train.csv, /Users/mac/Desktop/ComputerVisionandSpeechRecognition/outputs/splits/val.csv, /Users/mac/Desktop/ComputerVisionandSpeechRecognition/outputs/splits/test.csv
+
+===== B6  preprocessing decisions =====
+images at least 224px on the short side: 100.0%
+input resolution: 224x224
+views: both images of a lesion are used as separate training samples with the lesion label; evaluation averages the two views per lesion (see aggregate_predictions)
+
+===== B7  augmentation =====
+eval_transform deterministic: True
+saved: outputs/augmentations.csv and 3 augmentation figures
+
+===== B8  dataloaders =====
+class weights (train only): {'Benign': 1.163, 'Indeterminate': 13.8902, 'Malignant': 0.4835}
+imbalance ratio on train: 28.7
+saved: /Users/mac/Desktop/ComputerVisionandSpeechRecognition/outputs/class_weights.json
+batch: (32, 3, 224, 224) torch.float32  min=-2.12 max=2.64
+labels over 20 sampled batches: {'Indeterminate': 216, 'Benign': 212, 'Malignant': 212}
+one pass over val: 1,572 images in 14.8s
+batch stats: {'min': -2.118, 'max': 2.64, 'mean': 0.404, 'std': 0.844, 'shape': (32, 3, 224, 224)}

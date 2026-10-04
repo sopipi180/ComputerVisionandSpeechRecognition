@@ -1,0 +1,13 @@
+dx,diagnosis_1,lesions
+AKIEC,Indeterminate,123
+AKIEC,Malignant,180
+BCC,Malignant,2522
+BEN_OTH,Benign,44
+BKL,Benign,544
+DF,Benign,52
+INF,Benign,50
+MAL_OTH,Malignant,9
+MEL,Malignant,450
+NV,Benign,746
+SCCKA,Malignant,473
+VASC,Benign,47
