@@ -1,0 +1,104 @@
+splits: train 7334 images / 3667 lesions, val 1572 images / 786 lesions, test 1574 images / 787 lesions
+extracting 20960 rows (10480 images x 2 crops) ...
+  1000/20960  (50 rows/s, 401s left)
+  2000/20960  (51 rows/s, 375s left)
+  3000/20960  (51 rows/s, 349s left)
+  4000/20960  (52 rows/s, 326s left)
+  5000/20960  (52 rows/s, 304s left)
+  6000/20960  (53 rows/s, 284s left)
+  7000/20960  (53 rows/s, 265s left)
+  8000/20960  (53 rows/s, 245s left)
+  9000/20960  (53 rows/s, 225s left)
+  10000/20960  (53 rows/s, 206s left)
+  11000/20960  (53 rows/s, 187s left)
+  12000/20960  (53 rows/s, 168s left)
+  13000/20960  (54 rows/s, 149s left)
+  14000/20960  (54 rows/s, 130s left)
+  15000/20960  (54 rows/s, 111s left)
+  16000/20960  (54 rows/s, 92s left)
+  17000/20960  (54 rows/s, 74s left)
+  18000/20960  (54 rows/s, 55s left)
+  19000/20960  (54 rows/s, 36s left)
+  20000/20960  (54 rows/s, 18s left)
+  20960/20960  (54 rows/s, 0s left)
+wrote /Users/mac/Desktop/ComputerVisionandSpeechRecognition/Session5/features.csv
+feature groups: color 6, hist 24, texture 3, glcm 5, shape 2
+
+==============================================================================
+STAGE 1 - crop x feature set x model, scored on VALIDATION (dermoscopic)
+==============================================================================
+train 3667 images, val 786 images
+validation class mix: {'Malignant': 542, 'Benign': 226, 'Indeterminate': 18}
+  full frame     best: forest on histograms (24) -> macro-F1 0.505
+  centre 60%     best: svm_rbf on all 40 -> macro-F1 0.484
+
+cropping vs full frame, over all 56 feature-set/model combinations:
+  crop better in 17, worse in 31, tied in 8
+  mean macro-F1 0.418 (full) vs 0.404 (crop), median difference -0.007
+  -> carrying forward the 'full frame' images
+
+macro-F1 on validation (full frame):
+model             majority  logistic   knn5  knn15   tree  forest  svm_rbf
+feature_set                                                               
+color (6)            0.272     0.405  0.449  0.459  0.430   0.498    0.418
+histograms (24)      0.272     0.413  0.495  0.453  0.432   0.505    0.423
+texture (3)          0.272     0.303  0.474  0.435  0.390   0.456    0.364
+glcm (5)             0.272     0.376  0.427  0.454  0.406   0.457    0.403
+color+hist (30)      0.272     0.424  0.465  0.463  0.454   0.504    0.426
+slides 33            0.272     0.435  0.468  0.472  0.421   0.496    0.463
+texture+glcm (8)     0.272     0.409  0.483  0.462  0.426   0.472    0.427
+all 40               0.272     0.443  0.459  0.465  0.441   0.464    0.471
+
+==============================================================================
+STAGE 2 - settings: a small grid on VALIDATION
+==============================================================================
+  tuning forest on 'histograms (24)' (12 settings, default scored 0.505)
+    best {'model__max_depth': None, 'model__min_samples_leaf': 5, 'model__max_features': 'sqrt'} -> macro-F1 0.511 (+0.006 vs the default settings)
+  tuning knn5 on 'histograms (24)' (10 settings, default scored 0.495)
+    best {'model__n_neighbors': 5, 'model__weights': 'distance'} -> macro-F1 0.495 (+0.000 vs the default settings)
+
+==============================================================================
+STAGE 3 - which photos to use (validation)
+==============================================================================
+  forest    histograms (24)    dermoscopic  (images)  macro-F1 0.511  balanced acc 0.489
+  forest    histograms (24)    clinical     (images)  macro-F1 0.479  balanced acc 0.470
+  forest    histograms (24)    both         (lesions)  macro-F1 0.500  balanced acc 0.477
+  knn5      histograms (24)    dermoscopic  (images)  macro-F1 0.495  balanced acc 0.466
+  knn5      histograms (24)    clinical     (images)  macro-F1 0.392  balanced acc 0.393
+  knn5      histograms (24)    both         (lesions)  macro-F1 0.407  balanced acc 0.406
+
+==============================================================================
+STAGE 4 - the chosen configuration, scored ONCE on TEST
+==============================================================================
+chosen: forest on 'histograms (24)', full frame images, dermoscopic views, judged per image
+settings: {'model__max_depth': None, 'model__min_samples_leaf': 5, 'model__max_features': 'sqrt'}
+validation macro-F1 0.511
+refitted on 4453 images (train+val), tested on 787 images
+
+TEST macro-F1      0.525   (majority baseline 0.278)
+TEST accuracy      0.787   (majority baseline 0.717)
+TEST balanced acc  0.508
+
+confusion matrix (rows = truth, columns = prediction):
+                    pred Benign  pred Malignant  pred Indeterminate
+true Benign                 120              86                   0
+true Malignant               65             498                   1
+true Indeterminate            1              15                   1
+
+per class:
+               precision  recall     f1  support
+Benign             0.645   0.583  0.612      206
+Malignant          0.831   0.883  0.856      564
+Indeterminate      0.500   0.059  0.105       17
+
+10 most informative features:
+hist_G3    0.0801
+hist_B3    0.0698
+hist_B4    0.0584
+hist_B5    0.0560
+hist_G2    0.0546
+hist_B1    0.0545
+hist_B2    0.0509
+hist_R4    0.0505
+hist_G4    0.0499
+hist_B6    0.0490

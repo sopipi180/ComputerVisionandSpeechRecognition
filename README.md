@@ -53,7 +53,8 @@ python Session1/session1.py         # download the data + Session 1 EDA figures
 python Session1/practice_ex1.py     # Session 1 exercises
 python Session2/run_hw2.py          # Session 2 homework (EDA, processing, loader, visualiser)
 python scripts/run_milestone1.py    # Milestone 1: B1–B8, writes everything in outputs/
-jupyter notebook Session3/homework_part_a.ipynb    # Part A (or open it in VS Code)
+python Session4/session4.py        # Session 4: filters, Gaussian blur, Canny vs Sobel
+jupyter notebook Session3/homework_part_a.ipynb   # Part A (or open it in VS Code)
 ```
 
 `scripts/run_milestone1.py --quick` skips opening every image (the slow check in
@@ -81,14 +82,20 @@ B1). The notebook runs top to bottom with "Restart & Run All".
 ├── scripts/
 │   └── run_milestone1.py         runs B1–B8 end to end
 ├── Session3/
-│   └── homework_part_a.ipynb     Part A exercises (imports src/, contains no pipeline code)
+│   ├── homework_part_a.ipynb     Part A exercises (imports src/, contains no pipeline code)
+│   └── homework_part_a.pdf       the notebook exported to PDF
 ├── outputs/                      everything generated (committed: small and it is the evidence)
 │   ├── splits/{train,val,test}.csv
 │   ├── lesions.csv, label_map.json, class_weights.json
 │   ├── image_size_summary.csv, data_quality_report.md, augmentations.csv
 │   └── figures/
 ├── Session1/                     session 1 scripts + figures (milk10k/ lives here, not committed)
-└── Session2/                     session 2 homework + figures + results
+├── Session2/                     session 2 homework + figures + results
+└── Session4/                     session 4 homework, self-contained
+    ├── filters.py                filter bank, Gaussian blur, Sobel, Canny (written by hand)
+    ├── session4.py               the three exercises
+    ├── results.txt               every number the run measured
+    └── figures/
 ```
 
 **Why this layout.** Reusable logic lives in `common/` and `src/` as importable

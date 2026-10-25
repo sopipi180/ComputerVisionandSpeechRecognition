@@ -1,0 +1,36 @@
+10480 images available, 5240 lesions
+======================================================================
+1. FILTERS ON DIFFERENT DIAGNOSIS CLASSES
+======================================================================
+example images: {'Benign': 'ISIC_0119243', 'Malignant': 'ISIC_6242110', 'Indeterminate': 'ISIC_6886883'}
+
+class               n       edge energy     texture (Lap var)    canny edge %
+Benign             60      0.0544 ±0.0224         0.00012 ±0.00014        3.00 ±1.98
+Malignant          60      0.0549 ±0.0253         0.00010 ±0.00011        2.74 ±1.76
+Indeterminate      60      0.0720 ±0.0292         0.00017 ±0.00019        3.71 ±2.02
+
+======================================================================
+2. GAUSSIAN BLUR - WHAT SIGMA CONTROLS
+======================================================================
+scipy.ndimage.gaussian_filter(input, sigma): sigma is the standard
+deviation of the Gaussian, in PIXELS. It sets how far a pixel is
+smeared into its neighbours. scipy builds a kernel of half-width
+int(truncate*sigma + 0.5), truncate=4.0 by default, so the window is
+2*int(4*sigma + 0.5)+1 pixels wide. Bigger sigma = wider kernel =
+more blur, and the cost grows with sigma.
+
+  sigma   kernel (px)   edge energy   canny px  detail kept
+      0             1        0.0638       1298        1.000
+      1             9        0.0466        553        0.989
+      2            17        0.0329        247        0.978
+      4            33        0.0219          0        0.960
+      8            65        0.0144          0        0.933
+     16           129        0.0095          0        0.887
+
+======================================================================
+3. CANNY (IMPLEMENTED BY HAND) vs SOBEL
+======================================================================
+Sobel marks 9669 pixels (3.58% of the image)
+Canny marks 3342 pixels (1.24% of the image)
+of 10404 weak pixels, hysteresis kept 1228 (connected to a strong edge)
+cross-check skipped (scikit-image not installed - `pip install scikit-image` to enable it)
