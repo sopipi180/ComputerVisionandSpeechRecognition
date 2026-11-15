@@ -4,3 +4,9 @@ venv/
 __pycache__/
 *.pyc
 .DS_Store
+
+# generated caches and editor settings
+Session7/_output/
+Session6/pixels_*.npz
+.vscode/
+.idea/

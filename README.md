@@ -1,9 +1,11 @@
 # MILK10k lesion classification — Computer Vision and Speech Recognition
 
 Individual course project (EADA). The repository grows one session at a time:
-Session 1 was the setup and first EDA, Session 2 the extended EDA and a first
-data pipeline, Session 3 / Milestone 1 turns that into a **leak-free,
-reproducible pipeline**.
+Session 1 the setup and first EDA, Session 2 the extended EDA and a first data
+pipeline, Session 3 / Milestone 1 a **leak-free, reproducible pipeline**,
+Session 4 classical filters, Session 5 a classical ML baseline, Session 6 a
+neural network on handcrafted features, Session 7 CNNs and transfer learning.
+The scoreboard in section 6 is how every model is compared.
 
 ## 1. What this project is
 
@@ -53,8 +55,11 @@ python Session1/session1.py         # download the data + Session 1 EDA figures
 python Session1/practice_ex1.py     # Session 1 exercises
 python Session2/run_hw2.py          # Session 2 homework (EDA, processing, loader, visualiser)
 python scripts/run_milestone1.py    # Milestone 1: B1–B8, writes everything in outputs/
-python Session4/session4.py        # Session 4: filters, Gaussian blur, Canny vs Sobel
+python Session4/session4.py         # Session 4: filters, Gaussian blur, Canny vs Sobel
+python Session5/session5.py         # Session 5: classical ML baseline (features -> models -> test)
 jupyter notebook Session3/homework_part_a.ipynb   # Part A (or open it in VS Code)
+jupyter notebook Session6/Class6homework.ipynb    # Session 6: the MLP
+jupyter notebook Session7/Class7.ipynb            # Session 7: CNNs and ResNet-18
 ```
 
 `scripts/run_milestone1.py --quick` skips opening every image (the slow check in
@@ -91,11 +96,21 @@ B1). The notebook runs top to bottom with "Restart & Run All".
 │   └── figures/
 ├── Session1/                     session 1 scripts + figures (milk10k/ lives here, not committed)
 ├── Session2/                     session 2 homework + figures + results
-└── Session4/                     session 4 homework, self-contained
-    ├── filters.py                filter bank, Gaussian blur, Sobel, Canny (written by hand)
-    ├── session4.py               the three exercises
-    ├── results.txt               every number the run measured
-    └── figures/
+├── Session4/                     session 4 homework, self-contained
+│   ├── filters.py                filter bank, Gaussian blur, Sobel, Canny (written by hand)
+│   ├── session4.py               the three exercises
+│   └── results.txt, figures/
+├── Session5/                     session 5: the classical ML baseline
+│   ├── features.py               image -> 40 numbers (colour, histograms, texture, GLCM, asymmetry)
+│   ├── models.py                 the model zoo, the scaling pipeline and the scoring
+│   ├── session5.py               crop -> feature set -> settings -> views -> test once
+│   ├── features.csv              the cached features (committed: it is the input to Sessions 6-7)
+│   └── results.txt, results/, figures/
+├── Session6/                     session 6: a neural network (MLP) in PyTorch
+│   ├── data.py                   loads the 33 features and the raw 32x32 pixels
+│   └── Class6homework.ipynb      class work + the three homework questions
+└── Session7/                     session 7: CNNs and transfer learning
+    └── Class7.ipynb              class work + the mini challenge + the homework
 ```
 
 **Why this layout.** Reusable logic lives in `common/` and `src/` as importable
@@ -151,3 +166,43 @@ and in the 11-class scheme BCC outnumbers MAL_OTH by about 280 to 1. Handled wit
 both class weights (`outputs/class_weights.json`) and a `WeightedRandomSampler`.
 Because MILK10k is biopsy-enriched, any accuracy measured here overstates
 real-world performance — details in the Milestone 1 report.
+
+## 6. Results so far — the scoreboard
+
+Every number is **macro-F1**, not accuracy: about 72 % of the test set is
+Malignant, so a model that always answers "Malignant" scores 0.717 accuracy while
+learning nothing. The same model scores 0.278 macro-F1, and that is the floor.
+
+All models use the same lesion-level split from Session 3 and the dermoscopic
+photo of each lesion, so the rows are comparable. Validation chooses; test is
+scored once.
+
+| Session | Model | Validation | Test |
+|---|---|---|---|
+| 5 | majority (always Malignant) | 0.272 | 0.278 |
+| 5 | random forest, 24 histogram features | 0.511 | 0.525 |
+| 6 | MLP 33-64-3, handcrafted features | 0.463 | 0.483 |
+| 6 | MLP 3072-64-3, raw 32x32 pixels | 0.524 | 0.456 |
+| 7 | CNN from scratch | 0.520 | — |
+| 7 | ResNet-18 frozen + linear head | 0.563 | — |
+| 7 | ResNet-18, layer4 fine-tuned | 0.638 | — |
+| 7 | **ResNet-18, layer3 + layer4 fine-tuned** | **0.642** | **0.590** |
+| 7 | ResNet-18, all layers fine-tuned | 0.529 | — |
+
+**Best model: ResNet-18 with `layer3`, `layer4` and the new head fine-tuned —
+validation 0.642, test 0.590.** That is 2.1x the majority floor and 0.065 above
+the Session 5 forest on test.
+
+Three things the table shows:
+
+- **Transfer learning is what moved the number.** A CNN trained from scratch on
+  3,667 lesions reaches 0.520, barely past the Session 5 forest. The same
+  architecture pretrained on ImageNet and partly fine-tuned reaches 0.642.
+- **Fine-tuning everything made it worse** (0.529 vs 0.642). 11.7 million weights
+  on 3,667 lesions is too much freedom; the early layers already hold the general
+  edges and textures that transfer fine, so letting them move only loses them.
+- **`layer3 + layer4` barely beat `layer4` alone** (0.642 vs 0.638) for about 2
+  million extra trainable weights. On 786 validation lesions that gap is noise.
+
+The drop from validation to test (0.642 -> 0.590) is the usual cost of having
+chosen the configuration on validation, and is the honest number to quote.
