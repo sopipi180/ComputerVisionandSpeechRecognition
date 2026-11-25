@@ -1,3 +1,4 @@
+import sys
 import urllib.request
 import zipfile
 from pathlib import Path
@@ -9,9 +10,13 @@ import matplotlib.pyplot as plt
 
 
 BASE_DIR = Path(__file__).resolve().parent
+ROOT = next(p for p in BASE_DIR.parents if (p / "common" / "config.py").is_file())
+sys.path.insert(0, str(ROOT))
+from common import config   # the ONE place that says where the data lives
+
 DATA_URL = "https://isic-archive.s3.amazonaws.com/dois/10.34970-648456/milk10k.zip"
-ZIP_PATH = BASE_DIR / "milk10k.zip"
-DATA_DIR = BASE_DIR / "milk10k"
+DATA_DIR = config.DATA_DIR                   # data/milk10k (or $MILK10K_DIR on Colab)
+ZIP_PATH = DATA_DIR.parent / "milk10k.zip"
 IMG_DIR = DATA_DIR / "images"
 
 FIG_DIR = BASE_DIR / "figures"
@@ -51,6 +56,7 @@ def ensure_dataset():
 
     if not ZIP_PATH.exists():
         print("Downloading dataset (~345 MB, 10,480 images)...")
+        ZIP_PATH.parent.mkdir(parents=True, exist_ok=True)
         urllib.request.urlretrieve(DATA_URL, ZIP_PATH, reporthook=_show_progress)
         print("\nDownload complete.")
 

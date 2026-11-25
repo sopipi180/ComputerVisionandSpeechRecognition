@@ -8,7 +8,7 @@ from common import config
 # B3 decision - primary target: keep the three classes.
 # Indeterminate is small (2.3 %) but clinically it means "the doctor could not
 # decide", which is exactly the case a tool must not silently call benign.
-DIAGNOSIS_1_CLASSES = ["Benign", "Indeterminate", "Malignant"]
+DIAGNOSIS_1_CLASSES = config.CLASSES_3
 
 # B3 decision - 11-class stretch: keep all 11 classes and handle the rare ones
 # with class weights / a sampler instead of merging them. Merging DF, INF, VASC,

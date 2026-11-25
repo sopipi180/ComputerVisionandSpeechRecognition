@@ -39,97 +39,90 @@ source venv/bin/activate          # Windows: venv\Scripts\activate
 pip install -r requirements.txt
 ```
 
-**Where the data goes.** The dataset is downloaded to `Session1/milk10k/` by
-`Session1/session1.py` (~345 MB). The path is defined in exactly one place,
-`common/config.py`. To keep the images elsewhere, set an environment variable —
-no path is ever hard-coded in a script or a notebook:
+**Where the data goes.** The dataset is downloaded to `data/milk10k/` by
+`m1_data/Session1/session1.py` (~345 MB). The path is defined in exactly one place,
+`common/config.py`. To keep the images elsewhere (Colab, for instance), set an
+environment variable — no path is ever hard-coded in a script or a notebook:
 
 ```bash
 export MILK10K_DIR="/path/to/milk10k"
 ```
 
-**Commands.**
+**Commands.** Run from the repository root.
 
 ```bash
-python Session1/session1.py         # download the data + Session 1 EDA figures
-python Session1/practice_ex1.py     # Session 1 exercises
-python Session2/run_hw2.py          # Session 2 homework (EDA, processing, loader, visualiser)
-python scripts/run_milestone1.py    # Milestone 1: B1–B8, writes everything in outputs/
-python Session4/session4.py         # Session 4: filters, Gaussian blur, Canny vs Sobel
-python Session5/session5.py         # Session 5: classical ML baseline (features -> models -> test)
-jupyter notebook Session3/homework_part_a.ipynb   # Part A (or open it in VS Code)
-jupyter notebook Session6/Class6homework.ipynb    # Session 6: the MLP
-jupyter notebook Session7/Class7.ipynb            # Session 7: CNNs and ResNet-18
+python m1_data/Session1/session1.py        # download the data + Session 1 EDA figures
+python m1_data/Session1/practice_ex1.py    # Session 1 exercises
+python m1_data/Session2/run_hw2.py         # Session 2 homework (EDA, processing, loader, visualiser)
+python m1_data/run_milestone1.py           # Milestone 1: B1–B8, writes everything in outputs/
+python m2_baseline/Session4/session4.py    # Session 4: filters, Gaussian blur, Canny vs Sobel
+python m2_baseline/Session5/session5.py    # Session 5: classical ML baseline (features -> models -> test)
+jupyter notebook m1_data/Session3/homework_part_a.ipynb   # Part A (or open it in VS Code)
+jupyter notebook m3_deep/Session6/session6.ipynb          # Session 6: the MLP
+jupyter notebook m3_deep/Session7/session7.ipynb          # Session 7: CNNs and ResNet-18
 ```
 
-`scripts/run_milestone1.py --quick` skips opening every image (the slow check in
-B1). The notebook runs top to bottom with "Restart & Run All".
+`m1_data/run_milestone1.py --quick` skips opening every image (the slow check in
+B1). The notebooks run top to bottom with "Restart & Run All".
 
 ## 3. Repository structure
 
 ```
 .
 ├── README.md                     this file
-├── SUBMISSION.md                 link to every deliverable
 ├── requirements.txt              dependencies
 ├── .gitignore                    keeps images, venv and caches out of git
-├── common/                       code shared by every session
-│   ├── config.py                 paths, target column, seed, image size — the ONLY place paths are set
+├── data/milk10k/                 the dataset (downloaded, NOT committed)
+│
+├── common/                       SHARED - code every milestone uses
+│   ├── config.py                 paths, target, seed, image size, the 3 and 11 class lists
 │   ├── milk10k.py                load_metadata(), available_subset()
 │   └── viz.py                    show_grid(), plot_class_balance(), plot_batch_check()
-├── src/                          the Milestone 1 pipeline (importable, no notebook code)
+├── src/                          SHARED - the Milestone 1 pipeline
 │   ├── lesions.py                per-image metadata -> one row per lesion
 │   ├── splits.py                 split_lesions(), split checks, fold-strategy comparison
 │   ├── labels.py                 label map, class weights, sampler weights
 │   ├── quality.py                label cross-checks, integrity check, data-quality report
 │   ├── transforms.py             train_transform / eval_transform + why each augmentation is safe
-│   └── datasets.py               MilkImageDataset, LesionDataset, DataLoaders, aggregate_predictions
-├── scripts/
-│   └── run_milestone1.py         runs B1–B8 end to end
-├── Session3/
-│   ├── homework_part_a.ipynb     Part A exercises (imports src/, contains no pipeline code)
-│   └── homework_part_a.pdf       the notebook exported to PDF
-├── outputs/                      everything generated (committed: small and it is the evidence)
+│   └── datasets.py               MilkImageDataset, LesionDataset, DataLoaders
+├── outputs/                      SHARED - the splits every model is trained and scored on
 │   ├── splits/{train,val,test}.csv
 │   ├── lesions.csv, label_map.json, class_weights.json
 │   ├── image_size_summary.csv, data_quality_report.md, augmentations.csv
 │   └── figures/
-├── Session1/                     session 1 scripts + figures (milk10k/ lives here, not committed)
-├── Session2/                     session 2 homework + figures + results
-├── Session4/                     session 4 homework, self-contained
-│   ├── filters.py                filter bank, Gaussian blur, Sobel, Canny (written by hand)
-│   ├── session4.py               the three exercises
-│   └── results.txt, figures/
-├── Session5/                     session 5: the classical ML baseline
-│   ├── features.py               image -> 40 numbers (colour, histograms, texture, GLCM, asymmetry)
-│   ├── models.py                 the model zoo, the scaling pipeline and the scoring
-│   ├── session5.py               crop -> feature set -> settings -> views -> test once
-│   ├── features.csv              the cached features (committed: it is the input to Sessions 6-7)
-│   └── results.txt, results/, figures/
-├── Session6/                     session 6: a neural network (MLP) in PyTorch
-│   ├── data.py                   loads the 33 features and the raw 32x32 pixels
-│   └── Class6homework.ipynb      class work + the three homework questions
-└── Session7/                     session 7: CNNs and transfer learning
-    └── Class7.ipynb              class work + the mini challenge + the homework
+│
+├── m1_data/                      MILESTONE 1 - data, EDA, the pipeline
+│   ├── run_milestone1.py         runs B1–B8 end to end
+│   ├── Session1/                 download + first EDA
+│   ├── Session2/                 homework 2: metadata, colour, processing, loader
+│   └── Session3/                 homework part A (notebook + PDF)
+├── m2_baseline/                  MILESTONE 2 - classical baseline
+│   ├── Session4/                 filters, Gaussian blur, Canny vs Sobel (written by hand)
+│   └── Session5/                 features -> random forest; features.csv is reused by Session 6
+├── m3_deep/                      MILESTONE 3 - deep learning
+│   ├── Session6/                 MLP in PyTorch (data.py + session6.ipynb)
+│   └── Session7/                 CNN from scratch + ResNet-18 transfer learning (session7.ipynb)
+├── m4_best_model/                MILESTONE 4 - improve the best model, error analysis
+└── m5_final/                     MILESTONE 5 - predict.py, submission.csv, model card
 ```
 
-**Why this layout.** Reusable logic lives in `common/` and `src/` as importable
-modules, so the notebook and the scripts call the same functions instead of
-copying them — when a split rule changes, it changes in one file. Notebooks are
-for exploration and answers only. Everything a run produces goes to `outputs/`,
-so generated files never mix with source code, and one config file holds the
-paths, the seed and the image size.
+**Why this layout.** Anything more than one milestone uses lives at the top:
+`common/`, `src/`, `outputs/` and `data/`. The splits in `outputs/` are used by
+M2, M3, M4 and M5 alike, so they can't belong to any single milestone. Each
+`mX_` folder holds one stage's work, in the order the course built it. Every
+script finds the repository by walking up until it sees `common/config.py`, so
+nothing depends on how deep a file sits.
 
 ## 4. Data handling rules
 
 - **Not committed:** the images and the zip (`**/milk10k/`, `**/milk10k.zip`),
   the virtual environment, `__pycache__`. Anyone can recreate the data by running
-  `Session1/session1.py`.
+  `m1_data/Session1/session1.py`.
 - **Committed:** all code, the split CSVs, the label map, the class weights, the
   quality report and the figures — they are small and they are the evidence for
   the reports.
 - **Seed:** `config.SEED = 0`, used for the splits, the sampler and torch.
-- **Splits created:** 29 September 2026, by `scripts/run_milestone1.py`, written
+- **Splits created:** 29 September 2026, by `m1_data/run_milestone1.py`, written
   to `outputs/splits/`.
 
 ## 5. Key decisions so far

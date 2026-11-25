@@ -1,7 +1,8 @@
 import sys
 from pathlib import Path
  
-sys.path.insert(0, str(Path(__file__).resolve().parents[1]))  # so `common` can be found
+ROOT = next(p for p in Path(__file__).resolve().parents if (p / "common" / "config.py").is_file())  # the repo folder
+sys.path.insert(0, str(ROOT))
  
 import matplotlib
 matplotlib.use("Agg")  # save plots without opening windows

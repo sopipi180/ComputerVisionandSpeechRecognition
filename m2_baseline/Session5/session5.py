@@ -8,7 +8,8 @@ import pandas as pd
 import matplotlib.pyplot as plt
 
 HERE = Path(__file__).resolve().parent
-sys.path.insert(0, str(HERE.parents[0]))
+ROOT = next(p for p in HERE.parents if (p / "common" / "config.py").is_file())  # the repo folder
+sys.path.insert(0, str(ROOT))
 sys.path.insert(0, str(HERE))
 
 from common import config, viz          
@@ -20,7 +21,7 @@ FIG_DIR = HERE / "figures"
 CACHE = HERE / "features.csv"
 LOG = HERE / "results.txt"
 
-CLASSES = ["Benign", "Malignant", "Indeterminate"]
+CLASSES = config.CLASSES_3
 TARGET = config.TARGET
 
 # two ways of looking at the same photo - stage 1 decides which is better

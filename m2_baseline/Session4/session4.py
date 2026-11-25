@@ -6,7 +6,8 @@ import numpy as np
 import matplotlib.pyplot as plt
 from PIL import Image
 
-sys.path.insert(0, str(Path(__file__).resolve().parents[1]))
+ROOT = next(p for p in Path(__file__).resolve().parents if (p / "common" / "config.py").is_file())  # the repo folder
+sys.path.insert(0, str(ROOT))
 sys.path.insert(0, str(Path(__file__).resolve().parent))
 
 from common import config, milk10k, viz          
@@ -15,7 +16,7 @@ import filters as F
 FIG_DIR = Path(__file__).resolve().parent / "figures"
 RESULTS = Path(__file__).resolve().parent / "results.txt"
 
-CLASSES = ["Benign", "Malignant", "Indeterminate"]
+CLASSES = config.CLASSES_3
 SIGMAS = [0, 1, 2, 4, 8, 16]
 HALF_SIZE = 300          # all images read at half resolution: same size for everyone
 log_lines = []

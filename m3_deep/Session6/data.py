@@ -5,17 +5,18 @@ import pandas as pd
 from PIL import Image
 
 HERE = Path(__file__).resolve().parent
-ROOT = HERE.parent
+ROOT = next(p for p in HERE.parents if (p / "common" / "config.py").is_file())  # the repo folder
+SESSION5 = ROOT / "m2_baseline" / "Session5"   # Session 6 reuses its features
 sys.path.insert(0, str(ROOT))
-sys.path.insert(0, str(ROOT / "Session5"))
+sys.path.insert(0, str(SESSION5))
 
 from common import config          # noqa: E402
 
-CLASSES = ["Benign", "Malignant", "Indeterminate"]
+CLASSES = config.CLASSES_3
 TARGET = config.TARGET
 PIXEL_SIZE = 32
 PIXEL_CACHE = HERE / f"pixels_{PIXEL_SIZE}.npz"
-FEATURE_CACHE = ROOT / "Session5" / "features.csv"
+FEATURE_CACHE = SESSION5 / "features.csv"
 
 # the 33 the slides use: colour statistics + colour histograms + texture
 SLIDES_33 = (["mean_R", "std_R", "mean_G", "std_G", "mean_B", "std_B"]
@@ -45,7 +46,7 @@ def build_features(ids):
     Only used when Session5/features.csv is missing - on Colab, for instance,
     because the cache is not in git. Takes a couple of minutes.
     """
-    sys.path.insert(0, str(ROOT / "Session5"))
+    sys.path.insert(0, str(SESSION5))
     import features as FT
 
     ids = list(ids)
@@ -77,7 +78,7 @@ def load_features(columns=None, ids=None):
     elif ids is not None:
         df = build_features(ids)
     else:
-        sys.exit(f"missing {FEATURE_CACHE} - run python Session5/session5.py first, "
+        sys.exit(f"missing {FEATURE_CACHE} - run python m2_baseline/Session5/session5.py first, "
                  f"or call load_features(ids=...) to compute them here")
     if "variant" in df.columns:
         df = df[df["variant"] == "full frame"].drop(columns="variant")
@@ -133,7 +134,7 @@ def feature_matrix(split_df, feats):
     if missing:
         sys.exit(f"{len(missing)} images in this split are not in features.csv "
                  f"(e.g. {sorted(missing)[0]}).\nRun the full extraction: "
-                 f"python Session5/session5.py")
+                 f"python m2_baseline/Session5/session5.py")
     return feats.loc[split_df["isic_id"]].to_numpy(dtype="float32")
 
 
