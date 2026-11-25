@@ -8,5 +8,6 @@ __pycache__/
 # generated caches and editor settings
 m3_deep/Session7/_output/
 m3_deep/Session6/pixels_*.npz
+m4_best_model/_cache/
 .vscode/
 .idea/
