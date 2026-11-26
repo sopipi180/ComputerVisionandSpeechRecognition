@@ -1,7 +1,9 @@
 """
 make_submission.py -> submission.csv for the official MILK10k leaderboard.
 
-One row per lesion: "lesion" + the 11 class probabilities, header in training_gt.csv order.
+One row per lesion: "lesion_id" + the 11 class probabilities.
+The slides say "lesion", but the ISIC system rejects that: it requires "lesion_id".
+The 11 class columns follow training_gt.csv order.
 The dermoscopic photo of each lesion is used, as in training. If m5_final/thresholds.json
 exists (from tune_thresholds.py), each class is rescaled so its tuned threshold sits at 0.5.
 
@@ -45,8 +47,8 @@ def one_photo_per_lesion(meta):
 
 def check(sub, n_lesions):
     """The four checks from the brief, plus one row per lesion."""
-    assert list(sub.columns) == ["lesion"] + CLASSES
-    assert len(sub) == n_lesions and sub.lesion.is_unique
+    assert list(sub.columns) == ["lesion_id"] + CLASSES
+    assert len(sub) == n_lesions and sub.lesion_id.is_unique
     assert sub[CLASSES].isna().sum().sum() == 0
     assert ((sub[CLASSES] >= 0) & (sub[CLASSES] <= 1)).all().all()
 
@@ -83,7 +85,7 @@ def main():
         print("\nno thresholds: plain softmax probabilities")
 
     sub = pd.DataFrame(probs.numpy(), columns=CLASSES)
-    sub.insert(0, "lesion", lesions["lesion_id"])
+    sub.insert(0, "lesion_id", lesions["lesion_id"])
     check(sub, meta["lesion_id"].nunique())
     if "Test_Metadata" in args.metadata.name:
         assert len(sub) == 479, f"the official test set has 479 lesions, got {len(sub)}"

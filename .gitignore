@@ -14,3 +14,8 @@ m4_best_model/_cache/
 m4_best_model/model_m4.pt
 m5_final/model_m5.pt
 m5_final/_cache/
+
+# official blind test set (no labels; never trained on)
+MILK10k_Test_Input/
+MILK10k_Test_Input.zip
+MILK10k_Test_Metadata.csv

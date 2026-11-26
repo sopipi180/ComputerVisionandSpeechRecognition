@@ -1,0 +1,11 @@
+{
+  "model": "ViT-B/16, last 2 blocks + head fine-tuned, 11 classes",
+  "best_epoch": 4,
+  "val_macro_f1": 0.373,
+  "test_macro_f1": 0.405,
+  "test_accuracy": 0.637,
+  "majority_test_macro_f1": 0.068,
+  "n_train": 3667,
+  "n_val": 786,
+  "n_test": 787
+}
