@@ -5,17 +5,24 @@ Session 1 the setup and first EDA, Session 2 the extended EDA and a first data
 pipeline, Session 3 / Milestone 1 a **leak-free, reproducible pipeline**,
 Session 4 classical filters, Session 5 a classical ML baseline, Session 6 a
 neural network on handcrafted features, Session 7 CNNs and transfer learning,
-Session 9 / Milestone 4 ResNet-18 vs ViT-B/16, error analysis and a fairness check.
-The scoreboard in section 6 is how every model is compared.
+Session 9 / Milestone 4 ResNet-18 vs ViT-B/16, error analysis and a fairness check,
+Session 10 / Milestone 5 the final 11-class model, `predict()` and the official
+leaderboard submission. The scoreboard in section 6 is how every model is compared.
+
+**Final result:** ViT-B/16, 11 classes — **official MILK10k leaderboard macro-F1
+0.360** (team `EADA-CV26-SC`); local estimate 0.428. See section 8 and
+[`model_card.md`](model_card.md).
 
 ## 1. What this project is
 
-**Task.** Given the two photos of a skin lesion — one dermoscopic (through a
-dermatoscope) and one clinical close-up — predict its diagnosis.
+**Task.** Every lesion in MILK10k has two photos — one dermoscopic (through a
+dermatoscope) and one clinical close-up. All models here predict the diagnosis
+from the **dermoscopic photo only** (the course default; the clinical photo was
+optional). Using both is the obvious next step.
 
-- **Primary target:** `diagnosis_1` — Benign / Malignant / Indeterminate.
-- **Stretch target:** the 11-class scheme in `training_gt.csv` (BCC, NV, BKL,
-  SCCKA, MEL, AKIEC, DF, INF, VASC, BEN_OTH, MAL_OTH).
+- **Target for the analysis (Milestones 2–4):** `diagnosis_1` — Benign / Malignant / Indeterminate.
+- **Target for the leaderboard (Milestone 5, mandatory):** the 11-class scheme in
+  `training_gt.csv` (AKIEC, BCC, BEN_OTH, BKL, DF, INF, MAL_OTH, MEL, NV, SCCKA, VASC).
 
 The prediction supports a doctor at triage, deciding whether a lesion needs a
 biopsy. Missing a malignant lesion costs far more than an unnecessary check-up,
@@ -62,6 +69,20 @@ jupyter notebook m1_data/Session3/homework_part_a.ipynb   # Part A (or open it i
 jupyter notebook m3_deep/Session6/session6.ipynb          # Session 6: the MLP
 jupyter notebook m3_deep/Session7/session7.ipynb          # Session 7: CNNs and ResNet-18
 jupyter notebook m4_best_model/m4.ipynb                   # Milestone 4: run in Colab on a T4 GPU
+jupyter notebook m5_final/m5_train.ipynb                  # Milestone 5: 11-class model, run in Colab on a T4 GPU
+python m5_final/tune_thresholds.py                        # Milestone 5: official-style score + per-class thresholds
+python m5_final/predict.py path/to/dermoscopic.jpg        # predict one image (needs m5_final/model_m5.pt)
+python m5_final/make_submission.py --metadata data/milk10k_test/MILK10k_Test_Metadata.csv \
+       --images data/milk10k_test/MILK10k_Test_Input       # the leaderboard file
+```
+
+**Using the final model.** `model_m5.pt` (~330 MB) is too big for git: produce it
+with `m5_final/m5_train.ipynb`, or ask me for a copy, and put it in `m5_final/`.
+Then, from Python:
+
+```python
+from m5_final.predict import predict
+predict("path/to/dermoscopic.jpg")    # {"AKIEC": 0.01, "BCC": 0.83, ...}
 ```
 
 `m1_data/run_milestone1.py --quick` skips opening every image (the slow check in
@@ -72,9 +93,11 @@ B1). The notebooks run top to bottom with "Restart & Run All".
 ```
 .
 ├── README.md                     this file
+├── model_card.md                 the final model: use, data, numbers, limits, how to reproduce
 ├── requirements.txt              dependencies
-├── .gitignore                    keeps images, venv and caches out of git
-├── data/milk10k/                 the dataset (downloaded, NOT committed)
+├── .gitignore                    keeps images, venv, caches and model weights out of git
+├── data/milk10k/                 the training dataset (downloaded, NOT committed)
+├── data/milk10k_test/            the blind leaderboard test set (downloaded, NOT committed)
 │
 ├── common/                       SHARED - code every milestone uses
 │   ├── config.py                 paths, target, seed, image size, the 3 and 11 class lists
@@ -111,7 +134,17 @@ B1). The notebooks run top to bottom with "Restart & Run All".
 │   ├── scoreboard.csv            every model of the project in one table
 │   ├── figures/                  the most confident mistakes
 │   └── model_m4.pt               final weights (~330 MB, NOT committed)
-└── m5_final/                     MILESTONE 5 - predict.py, submission.csv, model card
+└── m5_final/                     MILESTONE 5 - final 11-class pipeline + leaderboard
+    ├── pipeline.py               THE model + validation transform (used by everything below)
+    ├── m5_train.ipynb            trains the 11-class ViT (Colab, T4 GPU)
+    ├── predict.py                predict(image_path) -> 11 probabilities
+    ├── tune_thresholds.py        official-style local score, per-class thresholds
+    ├── make_submission.py        blind test set -> submission.csv
+    ├── submission.csv            the file uploaded to the ISIC Challenge (479 lesions)
+    ├── leaderboard.png           screenshot of the official result
+    ├── results.json, test_per_class.csv, local_scores.csv, thresholds.json
+    ├── figures/                  11-class confusion matrix
+    └── model_m5.pt               final weights (~330 MB, NOT committed)
 ```
 
 **Why this layout.** Anything more than one milestone uses lives at the top:
@@ -124,7 +157,8 @@ nothing depends on how deep a file sits.
 ## 4. Data handling rules
 
 - **Not committed:** the images and the zip (`**/milk10k/`, `**/milk10k.zip`),
-  the virtual environment, `__pycache__`. Anyone can recreate the data by running
+  the blind test set (`data/milk10k_test/`), the model weights (`model_m4.pt`,
+  `model_m5.pt`, ~330 MB each), the virtual environment, `__pycache__`. Anyone can recreate the data by running
   `m1_data/Session1/session1.py`.
 - **Committed:** all code, the split CSVs, the label map, the class weights, the
   quality report and the figures — they are small and they are the evidence for
@@ -150,11 +184,11 @@ lesion in two splits, exactly 2 images per lesion, class proportions per split
 against the global mix.
 
 **Preprocessing.** 224×224 (all images are 600×450, so every image is downscaled,
-never upscaled), ImageNet normalisation. Both views of a lesion are used as
-separate training samples with the lesion label; at evaluation the two views are
-averaged back into **one prediction per lesion**
+never upscaled), ImageNet normalisation. The Milestone 1 pipeline can use both views of a lesion
+and average them back into **one prediction per lesion**
 (`datasets.aggregate_predictions`), because the lesion is what a doctor decides
-about.
+about. From Session 5 on, every model uses the **dermoscopic view only**, one
+image per lesion, so all scoreboard rows see exactly the same input.
 
 **Augmentation.** Flips, small rotations and crops (scale ≥ 0.85, so the lesion
 cannot be cropped out), plus mild brightness and contrast jitter. **Hue jitter is
@@ -193,6 +227,9 @@ scored once.
 | M4 | ViT-B/16 frozen + linear head | 0.613 | 0.589 |
 | M4 | ResNet-18, layer3 + layer4 fine-tuned (rerun) | 0.644 | 0.586 |
 | M4 | **ViT-B/16, last 2 blocks fine-tuned** | **0.663** | **0.589** |
+
+These rows are all **3-class** (`diagnosis_1`). The 11-class model submitted to the
+leaderboard is scored separately in section 8, since its numbers are not comparable.
 
 **Final model (Milestone 4): ViT-B/16 with its last 2 encoder blocks and a new
 head fine-tuned — validation 0.663, test 0.589.** It was chosen on validation.
@@ -237,3 +274,38 @@ Details and figures are in `m4_best_model/m4.ipynb`, sections 4–6.
 - **Next:** the biggest problem is melanoma. More melanoma examples, a
   higher weight for it, or training on the 11-class target are the obvious
   things to try.
+
+## 8. Milestone 5 — final 11-class model and the official leaderboard
+
+The leaderboard only accepts 11 classes, so the Milestone 4 winner was
+**retrained once with 11 outputs** on the same split — same backbone (ViT-B/16),
+same layers fine-tuned, same recipe; only the labels (`training_gt.csv`) and the
+last layer change. Details, numbers and limits: [`model_card.md`](model_card.md).
+
+| 11-class ViT-B/16 | Validation | My test split | Official blind test |
+|---|---|---|---|
+| macro-F1, argmax | 0.373 | 0.405 | — |
+| macro-F1, official rule (each class ≥ 0.5) | 0.371 | 0.387 | — |
+| macro-F1, official rule + tuned thresholds | 0.435* | **0.428** | **0.360** |
+| always "BCC" | — | 0.068 | — |
+
+\* optimistic: the thresholds were tuned on validation.
+
+- **The official metric is not the usual macro-F1.** It binarises every class at
+  0.5. With 11 softmax outputs a rare class seldom reaches 0.5, so one threshold
+  per class was tuned on validation and the probabilities rescaled to put it at
+  0.5 (`tune_thresholds.py`): 0.387 → 0.428 on my test split.
+- **One pipeline everywhere.** The model and the validation transform are defined
+  once, in `m5_final/pipeline.py`; the notebook checks that `predict()` gives the
+  same probabilities as the notebook (difference ~1e-7).
+- **Official score 0.360 vs local 0.428.** My test split has no MAL_OTH, so 0.428
+  averages 10 classes, the leaderboard 11; the model never predicts MAL_OTH (7
+  training examples), so that class can only score 0 (0.428 × 10/11 ≈ 0.39). The
+  rest: rare classes with a handful of lesions among 479, thresholds tuned on few
+  validation lesions, and new patients.
+- **Strong where the data is**: BCC F1 0.81, NV 0.74. **Weak where it isn't**:
+  INF 0.00, BEN_OTH 0.05, and melanoma only 0.48 — the same weakness Milestone 4 found.
+- **Format note:** the course slides give the first column as `lesion`; the ISIC
+  system rejected that and requires `lesion_id`. `make_submission.py` writes `lesion_id`.
+
+![Official result](m5_final/leaderboard.png)
