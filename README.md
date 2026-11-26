@@ -4,7 +4,8 @@ Individual course project (EADA). The repository grows one session at a time:
 Session 1 the setup and first EDA, Session 2 the extended EDA and a first data
 pipeline, Session 3 / Milestone 1 a **leak-free, reproducible pipeline**,
 Session 4 classical filters, Session 5 a classical ML baseline, Session 6 a
-neural network on handcrafted features, Session 7 CNNs and transfer learning.
+neural network on handcrafted features, Session 7 CNNs and transfer learning,
+Session 9 / Milestone 4 ResNet-18 vs ViT-B/16, error analysis and a fairness check.
 The scoreboard in section 6 is how every model is compared.
 
 ## 1. What this project is
@@ -60,6 +61,7 @@ python m2_baseline/Session5/session5.py    # Session 5: classical ML baseline (f
 jupyter notebook m1_data/Session3/homework_part_a.ipynb   # Part A (or open it in VS Code)
 jupyter notebook m3_deep/Session6/session6.ipynb          # Session 6: the MLP
 jupyter notebook m3_deep/Session7/session7.ipynb          # Session 7: CNNs and ResNet-18
+jupyter notebook m4_best_model/m4.ipynb                   # Milestone 4: run in Colab on a T4 GPU
 ```
 
 `m1_data/run_milestone1.py --quick` skips opening every image (the slow check in
@@ -102,7 +104,13 @@ B1). The notebooks run top to bottom with "Restart & Run All".
 ├── m3_deep/                      MILESTONE 3 - deep learning
 │   ├── Session6/                 MLP in PyTorch (data.py + session6.ipynb)
 │   └── Session7/                 CNN from scratch + ResNet-18 transfer learning (session7.ipynb)
-├── m4_best_model/                MILESTONE 4 - improve the best model, error analysis
+├── m4_best_model/                MILESTONE 4 - ResNet-18 vs ViT, error analysis, fairness
+│   ├── m4.ipynb                  the notebook (Colab, T4 GPU)
+│   ├── test_predictions.csv      final model's prediction for every test lesion
+│   ├── fairness.csv              metrics by sex, age group and body site
+│   ├── scoreboard.csv            every model of the project in one table
+│   ├── figures/                  the most confident mistakes
+│   └── model_m4.pt               final weights (~330 MB, NOT committed)
 └── m5_final/                     MILESTONE 5 - predict.py, submission.csv, model card
 ```
 
@@ -181,10 +189,15 @@ scored once.
 | 7 | ResNet-18, layer4 fine-tuned | 0.638 | — |
 | 7 | **ResNet-18, layer3 + layer4 fine-tuned** | **0.642** | **0.590** |
 | 7 | ResNet-18, all layers fine-tuned | 0.529 | — |
+| M4 | ResNet-18 frozen + linear head (all 3,667 lesions) | 0.537 | 0.532 |
+| M4 | ViT-B/16 frozen + linear head | 0.613 | 0.589 |
+| M4 | ResNet-18, layer3 + layer4 fine-tuned (rerun) | 0.644 | 0.586 |
+| M4 | **ViT-B/16, last 2 blocks fine-tuned** | **0.663** | **0.589** |
 
-**Best model: ResNet-18 with `layer3`, `layer4` and the new head fine-tuned —
-validation 0.642, test 0.590.** That is 2.1x the majority floor and 0.065 above
-the Session 5 forest on test.
+**Final model (Milestone 4): ViT-B/16 with its last 2 encoder blocks and a new
+head fine-tuned — validation 0.663, test 0.589.** It was chosen on validation.
+On test it ties the Session 7 ResNet-18 (0.590): on 787 lesions, with only 17
+Indeterminate, a 0.001 gap is noise. Both are about 2.1x the majority floor.
 
 Three things the table shows:
 
@@ -199,3 +212,28 @@ Three things the table shows:
 
 The drop from validation to test (0.642 -> 0.590) is the usual cost of having
 chosen the configuration on validation, and is the honest number to quote.
+
+## 7. Milestone 4 — what the final model gets wrong
+
+Details and figures are in `m4_best_model/m4.ipynb`, sections 4–6.
+
+- **Frozen backbones, same head: ViT-B/16 beats ResNet-18** (0.613 vs 0.537 on
+  validation). Fine-tuned, the gap closes (0.663 vs 0.644), and on test they tie.
+- **The model misses melanoma.** 35 of the 63 test melanomas were called Benign
+  (56 %), against 31 of 401 basal cell carcinomas (8 %). The most confident
+  misses look like ordinary brown moles.
+- **False alarms are pale seborrhoeic keratoses.** 44 of 77 BKL were called
+  Malignant; most are flat and pink-red, like the BCCs that make up 71 % of the
+  Malignant class. The model seems to lean on colour: brown = benign, pink =
+  malignant.
+- **Indeterminate is hard by nature.** All 17 Indeterminate lesions are AKIEC,
+  and 27 Malignant lesions are AKIEC too; the pathologist decides between them,
+  not the photo. Indeterminate F1 is 0.23.
+- **Fairness.** Malignant recall is 0.61 for patients under 50 and 0.87–0.88
+  for older ones; 13 of the 14 melanomas in under-50s were missed. Women 0.80,
+  men 0.87: for women the model misses more melanomas (17 of 27) *and* more
+  BCCs (13 % vs 7 %), so that gap is not explained by melanoma alone. Body sites are
+  similar (0.80–0.90). The metadata has no skin tone, so that cannot be checked.
+- **Next:** the biggest problem is melanoma. More melanoma examples, a
+  higher weight for it, or training on the 11-class target are the obvious
+  things to try.
