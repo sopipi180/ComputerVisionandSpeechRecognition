@@ -55,3 +55,15 @@ def load_model(path=MODEL_PATH, device="cpu"):
     model = build_model(pretrained=False)          # no ImageNet download needed: our weights replace them
     model.load_state_dict(torch.load(path, map_location=device))
     return model.eval().to(device)
+
+
+def rescale(probs, thresholds):
+    """
+    Move each class's tuned threshold to 0.5 (the leaderboard binarises at 0.5).
+    Piecewise linear and increasing, so the ranking within a class doesn't change:
+    0 -> 0, threshold -> 0.5, 1 -> 1.
+    probs: (n, 11) tensor or array; thresholds: list of 11 numbers in (0, 1).
+    """
+    t = torch.as_tensor(thresholds, dtype=torch.float32)
+    p = torch.as_tensor(probs, dtype=torch.float32)
+    return torch.where(p < t, 0.5 * p / t, 0.5 + 0.5 * (p - t) / (1 - t))
