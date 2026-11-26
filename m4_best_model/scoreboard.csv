@@ -1,0 +1,14 @@
+session,model,val,test
+5,majority (always Malignant),0.272,0.278
+5,"random forest, 24 histogram features",0.511,0.525
+6,"MLP 33-64-3, handcrafted features",0.463,0.483
+6,"MLP 3072-64-3, raw 32x32 pixels",0.524,0.456
+7,CNN from scratch,0.52,
+7,ResNet-18 frozen + linear head,0.563,
+7,"ResNet-18, layer4 fine-tuned",0.638,
+7,"ResNet-18, layer3 + layer4 fine-tuned",0.642,0.59
+7,"ResNet-18, all layers fine-tuned",0.529,
+M4,ResNet-18 frozen + head,0.537,0.532
+M4,ViT-B/16 frozen + head,0.613,0.589
+M4,ResNet-18 fine-tuned,0.644,0.586
+M4,ViT-B/16 fine-tuned,0.663,0.589

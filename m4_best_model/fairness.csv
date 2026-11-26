@@ -1,0 +1,10 @@
+by,group,lesions,% malignant,macro-F1,malignant recall
+sex,female,317,68,0.626,0.8
+sex,male,470,74,0.565,0.874
+age_group,under 50,141,42,0.503,0.61
+age_group,50-69,332,78,0.607,0.865
+age_group,70+,310,79,0.514,0.882
+site,head/neck,224,75,0.52,0.799
+site,lower extremity,153,65,0.555,0.87
+site,unknown,302,68,0.533,0.849
+site,upper extremity,107,84,0.494,0.9
