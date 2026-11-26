@@ -8,8 +8,9 @@ The dermoscopic photo of each lesion is used, as in training. If m5_final/thresh
 exists (from tune_thresholds.py), each class is rescaled so its tuned threshold sits at 0.5.
 
 From the repo root:
-    # the official blind test set (479 lesions), unzipped from the ISIC Challenge site:
-    python m5_final/make_submission.py --metadata MILK10k_Test_Metadata.csv --images MILK10k_Test_Input
+    # the official blind test set (479 lesions), downloaded from the ISIC Challenge site
+    # and unzipped into data/milk10k_test/:
+    python m5_final/make_submission.py --metadata data/milk10k_test/MILK10k_Test_Metadata.csv --images data/milk10k_test/MILK10k_Test_Input
 
     # my own test split (only to check that the pipeline works):
     python m5_final/make_submission.py
