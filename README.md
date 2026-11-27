@@ -94,6 +94,7 @@ B1). The notebooks run top to bottom with "Restart & Run All".
 .
 ├── README.md                     this file
 ├── model_card.md                 the final model: use, data, numbers, limits, how to reproduce
+├── report.pdf                    the final report
 ├── requirements.txt              dependencies
 ├── .gitignore                    keeps images, venv, caches and model weights out of git
 ├── data/milk10k/                 the training dataset (downloaded, NOT committed)
@@ -131,6 +132,7 @@ B1). The notebooks run top to bottom with "Restart & Run All".
 │   ├── m4.ipynb                  the notebook (Colab, T4 GPU)
 │   ├── test_predictions.csv      final model's prediction for every test lesion
 │   ├── fairness.csv              metrics by sex, age group and body site
+│   ├── fairness_skin_tone.csv    metrics by skin_tone_class
 │   ├── scoreboard.csv            every model of the project in one table
 │   ├── figures/                  the most confident mistakes
 │   └── model_m4.pt               final weights (~330 MB, NOT committed)
@@ -233,8 +235,9 @@ leaderboard is scored separately in section 8, since its numbers are not compara
 
 **Final model (Milestone 4): ViT-B/16 with its last 2 encoder blocks and a new
 head fine-tuned — validation 0.663, test 0.589.** It was chosen on validation.
-On test it ties the Session 7 ResNet-18 (0.590): on 787 lesions, with only 17
-Indeterminate, a 0.001 gap is noise. Both are about 2.1x the majority floor.
+On test the ResNet-18 recipe scored 0.590 (Session 7) and 0.605 (Milestone 4 rerun):
+two identical runs differ by about 0.015, so on 787 lesions, with only 17
+Indeterminate, gaps of that size are noise. All are about 2.1x the majority floor.
 
 Three things the table shows:
 
