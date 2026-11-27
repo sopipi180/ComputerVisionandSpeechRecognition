@@ -10,5 +10,5 @@ session,model,val,test
 7,"ResNet-18, all layers fine-tuned",0.529,
 M4,ResNet-18 frozen + head,0.537,0.532
 M4,ViT-B/16 frozen + head,0.613,0.589
-M4,ResNet-18 fine-tuned,0.644,0.586
+M4,ResNet-18 fine-tuned,0.648,0.605
 M4,ViT-B/16 fine-tuned,0.663,0.589

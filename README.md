@@ -225,7 +225,7 @@ scored once.
 | 7 | ResNet-18, all layers fine-tuned | 0.529 | — |
 | M4 | ResNet-18 frozen + linear head (all 3,667 lesions) | 0.537 | 0.532 |
 | M4 | ViT-B/16 frozen + linear head | 0.613 | 0.589 |
-| M4 | ResNet-18, layer3 + layer4 fine-tuned (rerun) | 0.644 | 0.586 |
+| M4 | ResNet-18, layer3 + layer4 fine-tuned (rerun) | 0.648 | 0.605 |
 | M4 | **ViT-B/16, last 2 blocks fine-tuned** | **0.663** | **0.589** |
 
 These rows are all **3-class** (`diagnosis_1`). The 11-class model submitted to the
@@ -255,7 +255,9 @@ chosen the configuration on validation, and is the honest number to quote.
 Details and figures are in `m4_best_model/m4.ipynb`, sections 4–6.
 
 - **Frozen backbones, same head: ViT-B/16 beats ResNet-18** (0.613 vs 0.537 on
-  validation). Fine-tuned, the gap closes (0.663 vs 0.644), and on test they tie.
+  validation). Fine-tuned, the gap closes (0.663 vs 0.648). On test the ResNet
+  is slightly higher (0.605 vs 0.589), but the choice is made on validation, and a gap
+  that size is run-to-run noise (the same ResNet recipe gave 0.590 in M3).
 - **The model misses melanoma.** 35 of the 63 test melanomas were called Benign
   (56 %), against 31 of 401 basal cell carcinomas (8 %). The most confident
   misses look like ordinary brown moles.
@@ -270,7 +272,8 @@ Details and figures are in `m4_best_model/m4.ipynb`, sections 4–6.
   for older ones; 13 of the 14 melanomas in under-50s were missed. Women 0.80,
   men 0.87: for women the model misses more melanomas (17 of 27) *and* more
   BCCs (13 % vs 7 %), so that gap is not explained by melanoma alone. Body sites are
-  similar (0.80–0.90). The metadata has no skin tone, so that cannot be checked.
+  similar (0.80–0.90). Skin tone (`skin_tone_class` in `supplements/training_input.csv`):
+  recall is lowest for tone 2 (0.43), mostly missed melanomas again; tones 0–1 are too small to judge.
 - **Next:** the biggest problem is melanoma. More melanoma examples, a
   higher weight for it, or training on the 11-class target are the obvious
   things to try.

@@ -64,7 +64,7 @@ Column order of `training_gt.csv`, which is also the output and submission order
 - Loss: cross-entropy with class weights `n / (11 × count)`, so rare classes count more.
 - Augmentation: random horizontal and vertical flips.
 - Adam, learning rate 1e-4, batch 64, 6 epochs; the epoch with the best validation macro-F1 is kept (epoch 4).
-- Same architecture and recipe as the Milestone 4 winner (chosen there on 3-class validation macro-F1: ViT 0.663 vs ResNet-18 0.644).
+- Same architecture and recipe as the Milestone 4 winner (chosen there on 3-class validation macro-F1: ViT 0.663 vs ResNet-18 0.648).
 
 **Validation transform** (identical in training notebook, `predict()` and `make_submission.py`, all from `pipeline.py`):
 RGB → resize to 224 × 224 (PIL default) → scale to [0, 1] → ImageNet mean/std normalisation.
@@ -120,8 +120,9 @@ Per class on my test split (argmax):
 - **AKIEC is partly decided under the microscope**, not in the photo, so it can't be fully separated from BCC/SCCKA.
 - **Fairness** (checked in Milestone 4 on the 3-class version of the same architecture, not re-run for 11 classes):
   malignant recall 0.61 for patients under 50 vs 0.87-0.88 for older patients, driven by missed melanomas;
-  0.80 for women vs 0.87 for men. **Skin tone could not be checked**: the training metadata has no skin-tone field,
-  and the dataset is likely dominated by light skin. Do not assume it works on darker skin.
+  0.80 for women vs 0.87 for men. **Skin tone** (`skin_tone_class`, from `supplements/training_input.csv`): malignant
+  recall is lowest for tone 2 (0.43), but most of those misses are melanomas, the same weakness again. Tones 0-1 have
+  0 and 11 test lesions and 61 % of the data is tone 3, so do not assume it works on skin tones that are rare here.
 - **One photo type**: trained on dermoscopic images only; phone photos or clinical close-ups are outside what it saw.
 - One training run, one seed: differences of approximately 0.01 between runs are noise.
 
